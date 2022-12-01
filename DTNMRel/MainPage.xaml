@@ -108,7 +108,7 @@
                                    IsVisible="{Binding Source={RelativeSource AncestorType={x:Type local:MainPage}},
                                    Path=Width,Converter={StaticResource Key=WidthBoolConverter}}" />
                             <Entry Placeholder="Sent back to server" IsReadOnly="True"
-                                   Text="{Binding Path=SentString,Mode=OneWay}" />
+                                   Text="{Binding Path=SentString}" />
                         </StackLayout>
 
                         <StackLayout Orientation="Horizontal" 
@@ -206,7 +206,7 @@
                                    IsVisible="{Binding Source={RelativeSource AncestorType={x:Type local:MainPage}},
                                    Path=Width,Converter={StaticResource Key=WidthBoolConverter}}" />
                             <Entry Placeholder="Sent back to client" IsReadOnly="True"
-                                   Text="{Binding Path=SentString,Mode=OneWay}" />
+                                   Text="{Binding Path=SentString}" />
                         </StackLayout>
 
                         <StackLayout Orientation="Horizontal" 
@@ -333,7 +333,7 @@
                 <CheckBox HorizontalOptions="End"
                           IsChecked="{Binding Path=Param2}"
                           CheckedChanged="CheckBox_CheckedChanged"/>
-                <Label Text="Not" HorizontalOptions="End" />
+                <Label Text="Not" HorizontalOptions="End" Margin="0,0,5,0" />
                 <StackLayout Style="{StaticResource SwitchStackLayout}">
                     <Switch IsToggled="{Binding Path=IsEnabled}"
                             Toggled="SwitchFilter_Toggled" />
