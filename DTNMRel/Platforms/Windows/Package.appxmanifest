@@ -5,7 +5,7 @@
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
   IgnorableNamespaces="uap rescap">
 
-  <Identity Name="DTNMRel" Publisher="CN=daniznf" Version="0.22.2196.0" />
+  <Identity Name="DTNMRel" Publisher="CN=daniznf" Version="0.22.2351.0" />
 
   <Properties>
     <DisplayName>DTNMRel</DisplayName>

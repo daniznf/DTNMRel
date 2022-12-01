@@ -404,9 +404,9 @@
             <StackLayout Orientation="Vertical" Margin="0"
                          HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
                 <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" Margin="0" HeightRequest="50">
-                    <Entry Placeholder="Link name" FontSize="Title" HorizontalOptions="FillAndExpand"
+                    <Entry x:Name="EntLinkName" Placeholder="Link name" FontSize="Title" HorizontalOptions="FillAndExpand"
                            Text="{Binding Path=Name}"
-                           Unfocused="Entry_Unfocused" />
+                           Unfocused="EntLinkName_Unfocused" />
                     <StackLayout Style="{StaticResource SwitchStackLayout}">
                         <Switch x:Name="SwcCommunicationLink"
                                 IsToggled="{Binding Path=IsEnabled}" />

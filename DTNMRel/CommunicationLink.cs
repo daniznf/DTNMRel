@@ -47,7 +47,16 @@ namespace DTNMRel
             LinkStatus = CommunicationLinkStatus.Default;
         }
 
-        public string Name { get; set; }
+        private string name;
+        public string Name
+        { 
+            get => name;
+            set
+            {
+                name = value;
+                OnPropertyChanged(nameof(Name));
+            }
+        }
 
         bool isEnabled;
         public bool IsEnabled 

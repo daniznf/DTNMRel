@@ -460,7 +460,7 @@ public partial class MainPage : ContentPage
         }
     }
 
-    private void Entry_Unfocused(object sender, FocusEventArgs e)
+    private void EntLinkName_Unfocused(object sender, FocusEventArgs e)
     {
         SaveCommLink();
     }
