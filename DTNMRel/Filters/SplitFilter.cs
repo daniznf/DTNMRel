@@ -100,7 +100,7 @@ namespace DTNMRel.Filters
 
             AdditionalOutputs = ArrayHelper.SplitArray(input, p1);
             
-            if ((Param2 > 0) && (Param2 < AdditionalOutputs.Length))
+            if ((Param2 > 0) && (Param2 <= AdditionalOutputs.Length))
             {
                 return AdditionalOutputs[Param2-1];
             }
