@@ -1,0 +1,504 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    This file is part of DTNMRel.
+
+    DTNMRel - Daniele's Tools Network Message Relauncher
+    Copyright (C) 2022 daniznf
+
+    DTNMRel is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    DTNMRel is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. If not, see <https://www.gnu.org/licenses/>.
+    
+    https://github.com/daniznf/DTNMRel
+-->
+    
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DTNMRel.MainPage"
+             x:DataType="local:CommunicationLink"
+             xmlns:local="clr-namespace:DTNMRel;assembly=DTNMRel"
+             xmlns:conv="clr-namespace:DTNMRel.Converters"
+             xmlns:filt="clr-namespace:DTNMRel.Filters"
+             xmlns:sel="clr-namespace:DTNMRel.DataTemplateSelectors"
+             xmlns:txt="clr-namespace:System.Text;assembly=System.Runtime">
+
+    <ContentPage.Resources>
+        <!--#region DataTemplate Server -->
+        <DataTemplate x:DataType="{x:Type local:CommunicationDevice}" x:Key="ServerEditProperties">
+            <ViewCell>
+                <Border Stroke="{Binding Path=DeviceStatus,Converter={StaticResource Key=DeviceStatusConverter}}">
+                    <StackLayout Orientation="Vertical" HeightRequest="-1"
+                                 Unfocused="LytDevice_Unfocused">
+                        <StackLayout.Resources>
+                            <Style TargetType="StackLayout" BasedOn="{StaticResource Key=DeviceInnerStackLayout}" />
+                        </StackLayout.Resources>
+                        <StackLayout Orientation="Horizontal">
+                            <Button Text="-" CornerRadius="0" WidthRequest="20" HeightRequest="20" Padding="0"
+                                    Clicked="BtnMinimizeDevice_Clicked" />
+                            <Entry Placeholder="Name" FontSize="Medium"
+                                   Text="{Binding Path=Name}" IsReadOnly="{Binding Path=IsEnabled,Mode=OneWay}" />
+                            <StackLayout Style="{StaticResource SwitchStackLayout}">
+                                <Switch IsToggled="{Binding Path=IsEnabled}" />
+                            </StackLayout>
+                        </StackLayout>
+
+                        <StackLayout Orientation="Horizontal"
+                                     IsVisible="{Binding Path=IsCollapsed,Converter={StaticResource Key=InvertBoolConverter}}">
+                            <Label FontAttributes="Bold"
+                                   Text="{Binding Path=CommunicationDeviceType}"
+                                   IsVisible="{Binding Source={RelativeSource AncestorType={x:Type local:MainPage}},
+                                   Path=Width,Converter={StaticResource Key=WidthBoolConverter}}" />
+                            <Picker
+                                ItemsSource="{x:Static local:CommunicationDevice.CommunicationProtocols}"
+                                SelectedItem="{Binding Path=Protocol}" IsEnabled="{Binding Path=IsEnabled,Converter={StaticResource Key=InvertBoolConverter}}" />
+                            <Picker
+                                ItemsSource="{x:Static local:CommunicationDevice.Encodings}"
+                                SelectedItem="{Binding Path=Encoding,Converter={StaticResource Key=EncodingConverter}}"
+                                IsEnabled="{Binding Path=IsEnabled,Converter={StaticResource Key=InvertBoolConverter}}" />
+                        </StackLayout>
+
+                        <StackLayout Orientation="Horizontal" 
+                                     IsVisible="{Binding Path=IsCollapsed,Converter={StaticResource Key=InvertBoolConverter}}">
+                            <Label Text="Local:"
+                                   IsVisible="{Binding Source={RelativeSource AncestorType={x:Type local:MainPage}},
+                                   Path=Width,Converter={StaticResource Key=WidthBoolConverter}}" />
+                            <Picker
+                                    ItemsSource="{x:Static local:CommunicationDevice.LocalIPAddresses}"
+                                    SelectedItem="{Binding Path=LocalIPAddress}"
+                                    IsEnabled="{Binding Path=IsEnabled,Converter={StaticResource Key=InvertBoolConverter}}" />
+                            <Entry Placeholder="Port" HorizontalOptions="End"
+                                   Text="{Binding Path=LocalPort}" IsReadOnly="{Binding Path=IsEnabled,Mode=OneWay}"
+                                   IsVisible="{Binding Path=Protocol,Converter={StaticResource Key=ProtocolBoolConverter}}" />
+                        </StackLayout>
+
+                        <StackLayout Orientation="Horizontal">
+                            <Label Text="Remote:" 
+                                   TextColor="{StaticResource Gray300}"
+                                   IsVisible="{Binding Source={RelativeSource AncestorType={x:Type local:MainPage}},
+                                   Path=Width,Converter={StaticResource Key=WidthBoolConverter}}"/>
+                            <Entry Placeholder="Remote" IsReadOnly="True"
+                                   TextColor="{StaticResource Gray300}"
+                                   Text="{Binding Path=RemoteIPAddress,Converter={StaticResource Key=IPAddressConverter},Mode=OneWay}" />
+                            <Entry IsReadOnly="True" HorizontalOptions="End"
+                                   TextColor="{StaticResource Gray300}"
+                                   Placeholder="Port" Text="{Binding Path=RemotePort}"
+                                   IsVisible="{Binding Path=Protocol,Converter={StaticResource Key=ProtocolBoolConverter}}" />
+                        </StackLayout>
+
+                        <StackLayout Orientation="Horizontal">
+                            <Label Text="Received:"
+                                   IsVisible="{Binding Source={RelativeSource AncestorType={x:Type local:MainPage}},
+                                   Path=Width,Converter={StaticResource Key=WidthBoolConverter}}" />
+                            <Entry Placeholder="Received from server" IsReadOnly="True"
+                                   Text="{Binding Path=ReceivedString}" />
+                        </StackLayout>
+
+                        <StackLayout Orientation="Horizontal" 
+                                     IsVisible="{Binding Path=IsCollapsed,Converter={StaticResource Key=InvertBoolConverter}}">
+                            <Label Text="Sent back:"
+                                   IsVisible="{Binding Source={RelativeSource AncestorType={x:Type local:MainPage}},
+                                   Path=Width,Converter={StaticResource Key=WidthBoolConverter}}" />
+                            <Entry Placeholder="Sent back to server" IsReadOnly="True"
+                                   Text="{Binding Path=SentString,Mode=OneWay}" />
+                        </StackLayout>
+
+                        <StackLayout Orientation="Horizontal" 
+                                     IsVisible="{Binding Path=IsCollapsed,Converter={StaticResource Key=InvertBoolConverter}}">
+                            <Label Text="Test:"
+                                   IsVisible="{Binding Source={RelativeSource AncestorType={x:Type local:MainPage}},
+                                   Path=Width,Converter={StaticResource Key=WidthBoolConverter}}" />
+                            <Entry Placeholder="Send test to server"
+                                   Text="{Binding Path=TestString}"
+                                   IsEnabled="{Binding Path=IsEnabled,Mode=OneWay}" />
+                            <Button x:Name="BtnTestString" Text=">"
+                                    IsEnabled="{Binding Path=IsEnabled,Mode=OneWay}"
+                                    Pressed="BtnTestString_Pressed" />
+                        </StackLayout>
+                    </StackLayout>
+                </Border>
+            </ViewCell>
+        </DataTemplate>
+        <!--#endregion-->
+
+        <!--#region DataTemplate Client -->
+        <DataTemplate x:DataType="{x:Type local:CommunicationDevice}" x:Key="ClientEditProperties">
+            <ViewCell>
+                <Border Stroke="{Binding Path=DeviceStatus,Converter={StaticResource Key=DeviceStatusConverter}}">
+                    <StackLayout Orientation="Vertical" HeightRequest="-1"
+                                 Unfocused="LytDevice_Unfocused">
+                        <StackLayout.Resources>
+                            <Style TargetType="StackLayout" BasedOn="{StaticResource Key=DeviceInnerStackLayout}" />
+                        </StackLayout.Resources>
+                        <StackLayout Orientation="Horizontal">
+                            <Button Text="-" CornerRadius="0" WidthRequest="20" HeightRequest="20" Padding="0"
+                                    Clicked="BtnMinimizeDevice_Clicked" />
+                            <Entry Placeholder="Name" FontSize="Medium"
+                                   Text="{Binding Path=Name}" IsReadOnly="{Binding Path=IsEnabled,Mode=OneWay}" />
+                            <StackLayout Style="{StaticResource SwitchStackLayout}">
+                                <Switch x:Name="SwcCommunicationLink" IsToggled="{Binding Path=IsEnabled}" />
+                            </StackLayout>
+                        </StackLayout>
+
+                        <StackLayout Orientation="Horizontal" IsVisible="{Binding Path=IsCollapsed,Converter={StaticResource Key=InvertBoolConverter}}">
+                            <Label FontAttributes="Bold"
+                                Text="{Binding Path=CommunicationDeviceType}"
+                                IsVisible="{Binding Source={RelativeSource AncestorType={x:Type local:MainPage}},
+                                Path=Width,Converter={StaticResource Key=WidthBoolConverter}}" />
+                            <Picker
+                                ItemsSource="{x:Static local:CommunicationDevice.CommunicationProtocols }"
+                                SelectedItem="{Binding Path=Protocol}"
+                                IsEnabled="{Binding Path=IsEnabled,Converter={StaticResource Key=InvertBoolConverter}}" />
+                            <Picker
+                                ItemsSource="{x:Static local:CommunicationDevice.Encodings}"
+                                SelectedItem="{Binding Path=Encoding,Converter={StaticResource Key=EncodingConverter}}"
+                                IsEnabled="{Binding Path=IsEnabled,Converter={StaticResource Key=InvertBoolConverter}}" />
+                        </StackLayout>
+
+                        <StackLayout Orientation="Horizontal" 
+                                     IsVisible="{Binding Path=IsCollapsed,Converter={StaticResource Key=InvertBoolConverter}}">
+                            <Label Text="Local:"
+                                   IsVisible="{Binding Source={RelativeSource AncestorType={x:Type local:MainPage}},
+                                   Path=Width,Converter={StaticResource Key=WidthBoolConverter}}"/>
+                            <Picker
+                                ItemsSource="{x:Static local:CommunicationDevice.LocalIPAddresses}"
+                                SelectedItem="{Binding Path=LocalIPAddress}"
+                                IsEnabled="{Binding Path=IsEnabled,Converter={StaticResource Key=InvertBoolConverter}}" />
+                            <Entry Placeholder="Port" 
+                                   TextColor="{StaticResource Gray300}" HorizontalOptions="End"
+                                   Text="{Binding Path=LocalPort}" IsReadOnly="True"
+                                   IsVisible="{Binding Path=Protocol,Converter={StaticResource Key=ProtocolBoolConverter}}" />
+                        </StackLayout>
+
+                        <StackLayout Orientation="Horizontal">
+                            <Label Text="Remote:"
+                                   IsVisible="{Binding Source={RelativeSource AncestorType={x:Type local:MainPage}},
+                                   Path=Width,Converter={StaticResource Key=WidthBoolConverter}}"/>
+                            <Entry Placeholder="127.0.0.1"
+                                   Text="{Binding Path=RemoteIPAddress,Mode=OneWay}"
+                                   IsReadOnly="{Binding Path=IsEnabled}"
+                                   Unfocused="EntRemoteAddress_Unfocused" />
+                            <Entry HorizontalOptions="End" Placeholder="Port"
+                                   Text="{Binding Path=RemotePort}"
+                                   IsVisible="{Binding Path=Protocol,Converter={StaticResource Key=ProtocolBoolConverter}}"
+                                   IsReadOnly="{Binding Path=IsEnabled,Mode=OneWay}" />
+                        </StackLayout>
+
+                        <StackLayout Orientation="Horizontal" 
+                                     IsVisible="{Binding Path=IsCollapsed,Converter={StaticResource Key=InvertBoolConverter}}">
+                            <Label Text="Received:"
+                                   IsVisible="{Binding Source={RelativeSource AncestorType={x:Type local:MainPage}},
+                                   Path=Width,Converter={StaticResource Key=WidthBoolConverter}}" />
+                            <Entry Placeholder="Received from client"  IsReadOnly="True"
+                                   Text="{Binding Path=ReceivedString}" />
+                        </StackLayout>
+
+                        <StackLayout Orientation="Horizontal">
+                            <Label Text="Sent back:"
+                                   IsVisible="{Binding Source={RelativeSource AncestorType={x:Type local:MainPage}},
+                                   Path=Width,Converter={StaticResource Key=WidthBoolConverter}}" />
+                            <Entry Placeholder="Sent back to client" IsReadOnly="True"
+                                   Text="{Binding Path=SentString,Mode=OneWay}" />
+                        </StackLayout>
+
+                        <StackLayout Orientation="Horizontal" 
+                                     IsVisible="{Binding Path=IsCollapsed,Converter={StaticResource Key=InvertBoolConverter}}">
+                            <Label Text="Test:"
+                                   IsVisible="{Binding Source={RelativeSource AncestorType={x:Type local:MainPage}},
+                                   Path=Width,Converter={StaticResource Key=WidthBoolConverter}}" />
+                            <Entry Placeholder="Send test to client"
+                                   Text="{Binding Path=TestString}"
+                                   IsEnabled="{Binding Path=IsEnabled,Mode=OneWay}" />
+                            <Button x:Name="BtnTestString" Text=">"
+                                    IsEnabled="{Binding Path=IsEnabled,Mode=OneWay}"
+                                    Pressed="BtnTestString_Pressed" />
+                        </StackLayout>
+                    </StackLayout>
+                </Border>
+            </ViewCell>
+        </DataTemplate>
+        <!--#endregion-->
+        
+        <!--#region DataTemplate Filters -->
+        <DataTemplate x:Key="NoParamFilterEdit"
+                      x:DataType="{x:Type filt:TrimFilter}">
+                 <!-- x:DataType="{x:Type filt:TrimStartFilter}"
+                      x:DataType="{x:Type filt:TrimEndFilter}"-->
+            <StackLayout Orientation="Horizontal">
+                <Label Text="{Binding Path=Name}"
+                       IsVisible="{Binding Source={RelativeSource AncestorType={x:Type local:MainPage}},
+                                  Path=Width,Converter={StaticResource Key=WidthBoolConverter}}" />
+                <Label Text="No parameters" HorizontalOptions="CenterAndExpand" TextColor="{StaticResource Key=Gray500}" />
+                <StackLayout Style="{StaticResource SwitchStackLayout}">
+                    <Switch 
+                        IsToggled="{Binding Path=IsEnabled}"
+                        Toggled="SwitchFilter_Toggled" />
+                </StackLayout>
+            </StackLayout>
+        </DataTemplate>
+
+        <DataTemplate x:Key="OneStringFilterEdit"
+                      x:DataType="{x:Type filt:AppendFilter}">
+            <!-- x:DataType="{x:Type filt:RemoveFirstFilter}" -->
+            <StackLayout Orientation="Horizontal">
+                <Label Text="{Binding Path=Name}"
+                       IsVisible="{Binding Source={RelativeSource AncestorType={x:Type local:MainPage}},
+                                  Path=Width,Converter={StaticResource Key=WidthBoolConverter}}" />
+                <Entry x:Name="Param1" Placeholder="Parameter"
+                       Text="{Binding Path=Param1}"
+                       TextChanged="EntTestString_TextChanged" />
+                <StackLayout Style="{StaticResource SwitchStackLayout}">
+                    <Switch 
+                        IsToggled="{Binding Path=IsEnabled}"
+                        Toggled="SwitchFilter_Toggled" />
+                </StackLayout>
+            </StackLayout>
+        </DataTemplate>
+
+        <DataTemplate x:DataType="{x:Type filt:DelayFilter}" x:Key="OneIntFilterEdit">
+            <StackLayout Orientation="Horizontal">
+                <Label Text="{Binding Path=Name}"
+                       IsVisible="{Binding Source={RelativeSource AncestorType={x:Type local:MainPage}},
+                                  Path=Width,Converter={StaticResource Key=WidthBoolConverter}}" />
+                <Entry x:Name="Param1" Placeholder="0"
+                       Text="{Binding Path=Param1}"
+                       TextChanged="EntTestString_TextChanged" />
+                <Stepper x:Name="StpParam1" Minimum="0" Maximum="1000000" HorizontalOptions="End"
+                         Value="{Binding Path=Param1}"
+                         ValueChanged="StpParam_ValueChanged" />
+                <StackLayout Style="{StaticResource SwitchStackLayout}">
+                    <Switch 
+                        IsToggled="{Binding Path=IsEnabled}"
+                        Toggled="SwitchFilter_Toggled" />
+                </StackLayout>
+            </StackLayout>
+        </DataTemplate>
+        
+        <DataTemplate x:DataType="{x:Type filt:ReplaceFilter}" x:Key="TwoStringFilterEdit">
+            <StackLayout Orientation="Horizontal">
+                <Label Text="{Binding Path=Name}"
+                       IsVisible="{Binding Source={RelativeSource AncestorType={x:Type local:MainPage}},
+                                  Path=Width,Converter={StaticResource Key=WidthBoolConverter}}"/>
+                <Entry x:Name="Param1" Placeholder="First parameter"
+                       Text="{Binding Path=Param1}"
+                       TextChanged="EntTestString_TextChanged" />
+                <Entry x:Name="Param2" Placeholder="Second parameter"
+                       Text="{Binding Path=Param2}"
+                       TextChanged="EntTestString_TextChanged"/>
+                <StackLayout Style="{StaticResource SwitchStackLayout}">
+                    <Switch 
+                        IsToggled="{Binding Path=IsEnabled}"
+                        Toggled="SwitchFilter_Toggled" />
+                </StackLayout>
+            </StackLayout>
+        </DataTemplate>
+
+        <DataTemplate x:DataType="{x:Type filt:SplitFilter}" x:Key="OneStringOneIntFilterEdit">
+            <StackLayout Orientation="Horizontal">
+                <Label Text="{Binding Path=Name}"
+                       IsVisible="{Binding Source={RelativeSource AncestorType={x:Type local:MainPage}},
+                                  Path=Width,Converter={StaticResource Key=WidthBoolConverter}}" />
+                <Entry x:Name="Param1" Placeholder="Parameter"
+                       Text="{Binding Path=Param1}"
+                       TextChanged="EntTestString_TextChanged" />
+                <Label Text="Pos:" HorizontalOptions="End" />
+                <Label Text="{Binding Path=Param2}" HorizontalOptions="End" Margin="10,0,0,0"/>
+                <Stepper x:Name="StpParam2" Minimum="0" HorizontalOptions="End"
+                         ValueChanged="StpParam_ValueChanged"
+                         Value="{Binding Path=Param2}" />
+                <StackLayout Style="{StaticResource SwitchStackLayout}">
+                    <Switch IsToggled="{Binding Path=IsEnabled}"
+                            Toggled="SwitchFilter_Toggled" />
+                </StackLayout>
+            </StackLayout>
+        </DataTemplate>
+
+        <DataTemplate x:DataType="{x:Type filt:ContainsFilter}" x:Key="OneStringOneBoolFilterEdit">
+            <StackLayout Orientation="Horizontal">
+                <Label Text="{Binding Path=Name}"
+                       IsVisible="{Binding Source={RelativeSource AncestorType={x:Type local:MainPage}},
+                                  Path=Width,Converter={StaticResource Key=WidthBoolConverter}}" />
+                <Entry x:Name="Param1" Placeholder="Parameter"
+                       TextChanged="EntTestString_TextChanged"
+                       Text="{Binding Path=Param1}" />
+
+                <CheckBox HorizontalOptions="End"
+                          IsChecked="{Binding Path=Param2}"
+                          CheckedChanged="CheckBox_CheckedChanged"/>
+                <Label Text="Not" HorizontalOptions="End" />
+                <StackLayout Style="{StaticResource SwitchStackLayout}">
+                    <Switch IsToggled="{Binding Path=IsEnabled}"
+                            Toggled="SwitchFilter_Toggled" />
+                </StackLayout>
+            </StackLayout>
+        </DataTemplate>
+
+        <sel:FilterSelector x:Key="FilterSelector"
+                            NoParamTemplate="{StaticResource Key=NoParamFilterEdit}"
+                            OneStringTemplate="{StaticResource Key=OneStringFilterEdit}"
+                            OneIntTemplate="{StaticResource Key=OneIntFilterEdit}"
+                            TwoStringTemplate="{StaticResource Key=TwoStringFilterEdit}"
+                            OneStringOneIntTemplate="{StaticResource Key=OneStringOneIntFilterEdit}"
+                            OneStringOneBoolTemplate="{StaticResource Key=OneStringOneBoolFilterEdit}" />
+        <!--#endregion-->
+
+        <sel:DeviceTypeSelector x:Key="DeviceTypeSelector"
+                                ServerTemplate="{StaticResource Key=ServerEditProperties}"
+                                ClientTemplate="{StaticResource Key=ClientEditProperties}" />
+
+        <local:CommunicationLink x:Key="CommunicationLink" />
+        <conv:ProtocolBoolConverter x:Key="ProtocolBoolConverter" />
+        <conv:DeviceStatusColorConverter x:Key="DeviceStatusConverter" />
+        <conv:LinkStatusColorConverter x:Key="LinkStatusColorConverter" />
+        <conv:IPAddressConverter x:Key="IPAddressConverter" />
+        <conv:EncodingConverter x:Key="EncodingConverter" />
+        <conv:WidthOrientationConverter x:Key="WidthOrientationConverter" />
+        <conv:WidthBoolConverter x:Key="WidthBoolConverter" />
+        <conv:InvertBoolConverter x:Key="InvertBoolConverter" />
+    </ContentPage.Resources>
+
+    <StackLayout Orientation="Vertical" >
+        <!--#region Top bar -->
+        <StackLayout Orientation="Horizontal">
+            <Label Text="DT Network Message Relauncher" FontSize="Title" HorizontalOptions="StartAndExpand" />
+            <Label x:Name="LblVersion" Text="v0.0" FontSize="Caption" HorizontalOptions="End"
+                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+        </StackLayout>
+        <!--#endregion-->
+
+        <StackLayout x:Name="LytMain" HeightRequest="-1" Margin="0"
+                     VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand"
+                     Orientation="{Binding Source={RelativeSource AncestorType={x:Type local:MainPage}},
+                                   Path=Width,Converter={StaticResource Key=WidthOrientationConverter}}">
+            <!--#region Sources -->
+            <StackLayout Orientation="Vertical" Margin="0"
+                         HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+                <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" Margin="0" HeightRequest="50">
+                    <Label Text="Sources" FontSize="Title" HorizontalOptions="CenterAndExpand" />
+                </StackLayout>
+                <ListView x:Name="LstSources"
+                          ItemTemplate="{StaticResource Key=DeviceTypeSelector}"
+                          ItemsSource="{Binding Path=Sources}" />
+
+                <StackLayout Orientation="Horizontal">
+                    <Label Text="Add device:" HorizontalOptions="Start" />
+                    <Picker x:Name="PkrSourceDevices"
+                            ItemsSource="{x:Static local:CommunicationDevice.DeviceTypes}" />
+                    <Button x:Name="BtnRemoveSource" Text="-" HorizontalOptions="End"
+                            Pressed="BtnRemoveSource_Pressed" />
+                    <Button x:Name="BtnAddSource" Text="+" HorizontalOptions="End"
+                            Pressed="BtnAddSource_Pressed" />
+                </StackLayout>
+            </StackLayout>
+            <!--#endregion-->
+
+            <!--#region Filters -->
+            <StackLayout Orientation="Vertical" Margin="0"
+                         HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+                <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" Margin="0" HeightRequest="50">
+                    <Entry Placeholder="Link name" FontSize="Title" HorizontalOptions="FillAndExpand"
+                           Text="{Binding Path=Name}"
+                           Unfocused="Entry_Unfocused" />
+                    <StackLayout Style="{StaticResource SwitchStackLayout}">
+                        <Switch x:Name="SwcCommunicationLink"
+                                IsToggled="{Binding Path=IsEnabled}" />
+                    </StackLayout>
+                </StackLayout>
+
+                <Border VerticalOptions="FillAndExpand"
+                    Stroke="{Binding Path=LinkStatus, Converter={StaticResource Key=LinkStatusColorConverter}}" >
+                    <CollectionView x:Name="CvwFilters" SelectionMode="Single"
+                                        AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All"
+                                        ItemTemplate="{StaticResource Key=FilterSelector}"
+                                        ItemsSource="{Binding Path=Filters}"
+                                        Unfocused="CvwFilters_Unfocused">
+                        <CollectionView.Resources>
+                            <Style TargetType="StackLayout" BasedOn="{StaticResource Key=SelectableStackLayout}" />
+                        </CollectionView.Resources>
+                        <CollectionView.Header>
+                            <StackLayout Margin="0" HeightRequest="25"
+                                         BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
+                                <Label Text="Filters - top to bottom ↴" VerticalOptions="CenterAndExpand" HorizontalOptions="Center"/>
+                            </StackLayout>
+                        </CollectionView.Header>
+                        <CollectionView.Footer>
+                            <StackLayout Margin="0" HeightRequest="25"
+                                             BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
+                                <Label Text="Output goes to all destinations ↳" VerticalOptions="CenterAndExpand" HorizontalOptions="Center"/>
+                            </StackLayout>
+                        </CollectionView.Footer>
+                    </CollectionView>
+                </Border>
+
+                <StackLayout Orientation="Vertical" HeightRequest="-1">
+                    <StackLayout Orientation="Horizontal">
+                        <Label Text="Test:"
+                               IsVisible="{Binding Source={RelativeSource AncestorType={x:Type local:MainPage}},
+                                   Path=Width,Converter={StaticResource Key=WidthBoolConverter}}" />
+                        <Entry Placeholder="Test string" x:Name="EntTestString" 
+                               Text="{Binding Path=TestString}"
+                               TextChanged="EntTestString_TextChanged" />
+                        <Picker x:Name="PkrTestEncoding" HorizontalOptions="End"
+                                ItemsSource="{x:Static local:CommunicationDevice.Encodings}"
+                                SelectedItem="{Binding Path=TestEncoding}"/>
+                    </StackLayout>
+
+                    <StackLayout Orientation="Horizontal">
+                        <Label Text="Filtered:"
+                               IsVisible="{Binding Source={RelativeSource AncestorType={x:Type local:MainPage}},
+                                   Path=Width,Converter={StaticResource Key=WidthBoolConverter}}" />
+                        <Entry Placeholder="Filtered string" x:Name="EntResultString"
+                                IsReadOnly="True"
+                               Text="{Binding Path=TestFilteredString}"/>
+                    </StackLayout>
+                </StackLayout>
+
+                <StackLayout Orientation="Horizontal">
+                    <Label Text="Add filter:"
+                           IsVisible="{Binding Source={RelativeSource AncestorType={x:Type local:MainPage}},
+                                   Path=Width,Converter={StaticResource Key=WidthBoolConverter}}" />
+                    <Picker x:Name="PkrFilter"
+                            ItemsSource="{x:Static filt:ICommunicationFilter.FilterTypes}" />
+                    <StackLayout Orientation="Horizontal" HorizontalOptions="End">
+                        <Button x:Name="BtnRemoveFilter" Text="-"
+                                Pressed="BtnRemoveFilter_Pressed" />
+                        <Button x:Name="BtnAppendFilter" Text="+"
+                                Pressed="BtnAddFilter_Pressed" />
+                    </StackLayout>
+                </StackLayout>
+            </StackLayout>
+            <!--#endregion-->
+
+            <!--#region Destinations -->
+            <StackLayout Orientation="Vertical" Margin="0"
+                         HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+                <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" Margin="0" HeightRequest="50">
+                    <Label Text="Destinations" FontSize="Title"  HorizontalOptions="CenterAndExpand" />
+                </StackLayout>
+
+                <ListView x:Name="LstDestinations"
+                          ItemTemplate="{StaticResource Key=DeviceTypeSelector}"
+                          ItemsSource="{Binding Path=Destinations}" />
+
+                <StackLayout Orientation="Horizontal">
+                    <Label Text="Add device:" HorizontalOptions="Start" />
+                    <Picker x:Name="PkrDestinationDevices"
+                            ItemsSource="{x:Static local:CommunicationDevice.DeviceTypes}" />
+                    <Button x:Name="BtnRemoveDestination" Text="-" HorizontalOptions="End"
+                            Pressed="BtnRemoveDestination_Pressed" />
+                    <Button x:Name="BtnAddDestination" Text="+" HorizontalOptions="End"
+                            Pressed="BtnAddDestination_Pressed"/>
+                </StackLayout>
+            </StackLayout>
+            <!--#endregion-->
+        </StackLayout>
+    </StackLayout>
+</ContentPage>
